@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gray-100">
+<div id="app" class="container mx-auto p-4">
+    <div class="bg-white rounded shadow p-6 mb-6">
+        <h1 class="text-2xl font-bold mb-4">Painel Super Admin</h1>
+
+        <!-- Mensagem de erro -->
+        <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {{error}}
+        </div>
+
+        <!-- Seção de Admins -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Gerenciar Administradores</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr v-for="admin in admins" :key="admin.id">
+                        <td class="px-6 py-4">{{admin.nome}}</td>
+                        <td class="px-6 py-4">{{admin.email}}</td>
+                        <td class="px-6 py-4">
+                            <button @click="removerAdmin(admin.id)"
+                                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                Remover
+                            </button>
+                        </td>
+                    </tr>
+                    <tr v-if="admins.length === 0">
+                        <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                            Nenhum administrador encontrado
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Seção de Usuários -->
+        <div>
+            <h2 class="text-xl font-semibold mb-4">Gerenciar Usuários</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Admin</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr v-for="user in users" :key="user.id">
+                        <td class="px-6 py-4">{{user.nome}}</td>
+                        <td class="px-6 py-4">{{user.email}}</td>
+                        <td class="px-6 py-4">{{user.adminNome}}</td>
+                        <td class="px-6 py-4">
+                            <button @click="removerUsuario(user.id)"
+                                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                Remover
+                            </button>
+                        </td>
+                    </tr>
+                    <tr v-if="users.length === 0">
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                            Nenhum usuário encontrado
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp } = Vue
+
+    createApp({
+        data() {
+            return {
+                admins: [],
+                users: [],
+                error: null,
+                superAdminId: null
+            }
+        },
+        methods: {
+            async loadData() {
+                try {
+                    const adminsResponse = await axios.get(`/api/dashboard/admins?superAdminId=${this.superAdminId}`)
+                    this.admins = adminsResponse.data
+
+                    const usersResponse = await axios.get(`/api/dashboard/users?superAdminId=${this.superAdminId}`)
+                    this.users = usersResponse.data
+
+                    this.error = null
+                } catch (error) {
+                    console.error('Erro:', error)
+                    this.error = 'Erro ao carregar dados: ' + (error.response?.data || error.message)
+                }
+            },
+            async removerAdmin(adminId) {
+                if (!confirm('Tem certeza que deseja remover este administrador?')) return
+
+                try {
+                    await axios.delete(`/api/dashboard/admin/${adminId}?superAdminId=${this.superAdminId}`)
+                    await this.loadData()
+                    this.error = null
+                } catch (error) {
+                    console.error('Erro:', error)
+                    this.error = 'Erro ao remover administrador: ' + (error.response?.data || error.message)
+                }
+            },
+            async removerUsuario(userId) {
+                if (!confirm('Tem certeza que deseja remover este usuário?')) return
+
+                try {
+                    await axios.delete(`/api/dashboard/user/${userId}?superAdminId=${this.superAdminId}`)
+                    await this.loadData()
+                    this.error = null
+                } catch (error) {
+                    console.error('Erro:', error)
+                    this.error = 'Erro ao remover usuário: ' + (error.response?.data || error.message)
+                }
+            },
+            async getSuperAdminId() {
+                // Aqui você deve implementar a lógica para obter o ID do super admin
+                // Por exemplo, buscar de um endpoint específico ou do localStorage
+                this.superAdminId = 1 // Temporariamente fixo para teste
+            }
+        },
+        async mounted() {
+            await this.getSuperAdminId()
+            await this.loadData()
+        }
+    }).mount('#app')
+</script>
+</body>
+</html>

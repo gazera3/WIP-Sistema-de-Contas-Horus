@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Administrador</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="container mx-auto p-4">
+        <h1 class="text-2xl font-bold mb-4">Painel do Administrador</h1>
+
+        <!-- Lista de Usuários -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-2">Meus Usuários</h2>
+            <table class="w-full border">
+                <thead>
+                <tr class="bg-gray-100">
+                    <th class="p-2 text-left">Nome</th>
+                    <th class="p-2 text-left">Email</th>
+                    <th class="p-2 text-left">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="user in users" :key="user.id" class="border-t">
+                    <td class="p-2">{{user.nome}}</td>
+                    <td class="p-2">{{user.email}}</td>
+                    <td class="p-2">
+                        <button @click="removerUsuario(user.id)"
+                                class="bg-red-500 text-white px-2 py-1 rounded">
+                            Remover
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Formulário para adicionar novo usuário -->
+        <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold mb-4">Adicionar Novo Usuário</h3>
+            <form @submit.prevent="adicionarUsuario" class="space-y-4">
+                <div>
+                    <label class="block mb-1">Nome:</label>
+                    <input v-model="novoUsuario.nome" type="text" required
+                           class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block mb-1">Email:</label>
+                    <input v-model="novoUsuario.email" type="email" required
+                           class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block mb-1">CPF/CNPJ:</label>
+                    <input v-model="novoUsuario.documento" type="text" required
+                           class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block mb-1">Senha:</label>
+                    <input v-model="novoUsuario.senha" type="password" required
+                           class="w-full p-2 border rounded">
+                </div>
+                <button type="submit"
+                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Adicionar Usuário
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="/js/admin-panel.js"></script>
+</body>
+</html>
