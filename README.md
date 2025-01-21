@@ -35,7 +35,7 @@ Sophie Alonso
 
 1. Clone o repositório
 ```bash
-git clone [url-do-repositorio]
+git clone (https://github.com/gazera3/WIP-Sistema-de-Contas-Horus)
 ```
 
 2. Configure o Java 21
